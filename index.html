@@ -1,0 +1,906 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designers Eng'gConsultancy TimeKeeper</title>
+    <style>
+        /* A simple, professional design using plain CSS. No external CDNs. */
+        :root {
+            --primary-color: #004d40;
+            --secondary-color: #b2dfdb;
+            --accent-color: #ffb74d;
+            --text-color: #333;
+            --light-bg: #f4f6f9;
+            --border-color: #e0e0e0;
+            --success-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        /* Form Styling */
+        #time-entry-form {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-actions button {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #add-entry-btn { background-color: var(--primary-color); }
+        #add-entry-btn:hover { background-color: #003d33; }
+        #clear-form-btn { background-color: #616161; }
+        #clear-form-btn:hover { background-color: #424242; }
+
+        /* Table Styling */
+        .controls, .summary, .table-container {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .controls > div {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        #search-box {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        
+        #summary-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        .summary-item {
+            background-color: var(--secondary-color);
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .summary-item span {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 0.25rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        table th, table td {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: var(--light-bg);
+        }
+
+        table tbody tr:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .table-actions button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+
+        .table-actions button:hover {
+            color: var(--accent-color);
+        }
+
+        /* Conditional Highlighting */
+        .status-ok { background-color: #e8f5e9 !important; }
+        .status-warning { background-color: #fff3e0 !important; }
+        .status-alert { background-color: #ffebee !important; }
+
+        /* Print Styles */
+        @media print {
+            body { background-color: white; }
+            .container, header, h2, form, .controls { display: none; }
+            .table-container { 
+                box-shadow: none; 
+                padding: 0;
+            }
+            .table-container table { 
+                border: none; 
+                width: 100%;
+            }
+            .table-container table th, .table-container table td {
+                border-color: #333;
+                font-size: 0.7rem;
+                padding: 0.5rem;
+            }
+            .table-container table thead {
+                background-color: #333;
+                color: white;
+            }
+            .table-actions, .select-row {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Designers Eng'gConsultancy TimeKeeper</h1>
+        <p>Offline daily time record and payroll management</p>
+    </header>
+
+    <h2>Add / Edit Time Entry</h2>
+    <form id="time-entry-form">
+        <input type="hidden" id="entry-id">
+        <div class="form-group">
+            <label for="employee-name">Employee Name</label>
+            <input type="text" id="employee-name" required>
+        </div>
+        <div class="form-group">
+            <label for="employee-id">Employee ID</label>
+            <input type="text" id="employee-id" required>
+        </div>
+        <div class="form-group">
+            <label for="position">Position</label>
+            <input type="text" id="position">
+        </div>
+        <div class="form-group">
+            <label for="project-department">Project / Department</label>
+            <input type="text" id="project-department">
+        </div>
+        <div class="form-group">
+            <label for="date-input">Date</label>
+            <input type="date" id="date-input" required>
+        </div>
+        <div class="form-group">
+            <label for="shift-start">Shift Start</label>
+            <input type="time" id="shift-start">
+        </div>
+        <div class="form-group">
+            <label for="shift-end">Shift End</label>
+            <input type="time" id="shift-end">
+        </div>
+        <div class="form-group">
+            <label for="time-in-am">Time In (AM)</label>
+            <input type="time" id="time-in-am">
+        </div>
+        <div class="form-group">
+            <label for="time-out-am">Time Out (AM)</label>
+            <input type="time" id="time-out-am">
+        </div>
+        <div class="form-group">
+            <label for="time-in-pm">Time In (PM)</label>
+            <input type="time" id="time-in-pm">
+        </div>
+        <div class="form-group">
+            <label for="time-out-pm">Time Out (PM)</label>
+            <input type="time" id="time-out-pm">
+        </div>
+        <div class="form-group">
+            <label for="attendance-status">Status</label>
+            <select id="attendance-status">
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+                <option value="Leave">Leave</option>
+                <option value="Rest Day">Rest Day</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="hourly-rate">Hourly Rate (₱)</label>
+            <input type="number" id="hourly-rate" value="10" step="0.01">
+        </div>
+        <div class="form-group">
+            <label for="remarks">Remarks</label>
+            <input type="text" id="remarks">
+        </div>
+        <div class="form-actions">
+            <button type="submit" id="add-entry-btn">Save Entry</button>
+            <button type="button" id="clear-form-btn">Clear Form</button>
+        </div>
+    </form>
+
+    <h2>Records</h2>
+    
+    <div class="controls">
+        <div class="search-group">
+            <label for="search-box">Search:</label>
+            <input type="text" id="search-box" placeholder="Employee Name or ID">
+        </div>
+        <div class="filter-sort-group">
+            <label for="filter-by">Filter:</label>
+            <select id="filter-by">
+                <option value="all">All</option>
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+                <option value="Leave">Leave</option>
+                <option value="Rest Day">Rest Day</option>
+            </select>
+        </div>
+        <div class="filter-sort-group">
+            <label for="sort-by">Sort:</label>
+            <select id="sort-by">
+                <option value="date-desc">Date (Newest First)</option>
+                <option value="date-asc">Date (Oldest First)</option>
+                <option value="name-asc">Name (A-Z)</option>
+                <option value="project-asc">Project (A-Z)</option>
+            </select>
+        </div>
+        <div class="bulk-actions">
+            <button id="mark-paid-btn">Mark Paid</button>
+            <button id="mark-unpaid-btn">Mark Unpaid</button>
+            <button id="delete-selected-btn">Delete Selected</button>
+        </div>
+        <div class="export-actions">
+            <button id="export-csv-btn">Export CSV</button>
+            <button id="print-pdf-btn">Print PDF</button>
+        </div>
+    </div>
+    
+    <div class="summary">
+        <h3>Summary for Selected Records</h3>
+        <div id="summary-details">
+            <div class="summary-item">Total Employees<span id="summary-employees">0</span></div>
+            <div class="summary-item">Total Hours<span id="summary-hours">0</span></div>
+            <div class="summary-item">Total Overtime<span id="summary-overtime">0</span></div>
+            <div class="summary-item">Total Pay<span id="summary-pay">₱0.00</span></div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th class="select-row"><input type="checkbox" id="select-all"></th>
+                    <th>Employee Name</th>
+                    <th>ID</th>
+                    <th>Position</th>
+                    <th>Project</th>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Shift</th>
+                    <th>Time In/Out (Actual)</th>
+                    <th>Hours Worked</th>
+                    <th>Late</th>
+                    <th>Undertime</th>
+                    <th>Overtime</th>
+                    <th>Night Diff</th>
+                    <th>Status</th>
+                    <th>Pay Status</th>
+                    <th>Regular Pay</th>
+                    <th>OT Pay</th>
+                    <th>Total Pay</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="record-table-body">
+                <!-- Records will be dynamically inserted here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    /**
+     * Timekeeping Web App - A single-file HTML/CSS/JavaScript solution.
+     * * This script handles all front-end logic for a timekeeping application,
+     * including data persistence via localStorage, time calculations, UI rendering,
+     * and export functionality.
+     * * To change default hourly rates and overtime multipliers, modify the constants
+     * at the beginning of the script:
+     * - `DEFAULT_HOURLY_RATE`: The standard hourly pay rate.
+     * - `OVERTIME_MULTIPLIER`: The multiplier for overtime pay.
+     * - `NIGHT_DIFF_MULTIPLIER`: The multiplier for night differential pay.
+     *
+     * The app assumes a local browser timezone for all date and time calculations.
+     * The date format is MM/DD/YYYY by default but is displayed based on the
+     * browser's locale settings.
+     */
+    
+    // ====================================================================================
+    //                                  Configuration Constants
+    // ====================================================================================
+    const DEFAULT_HOURLY_RATE = 10.00;
+    const OVERTIME_MULTIPLIER = 1.25;
+    const NIGHT_DIFF_MULTIPLIER = 1.10;
+    const LATE_THRESHOLD_MINS = 15;
+    const LOCAL_STORAGE_KEY = 'constructionTimekeepingRecords';
+    
+    // ====================================================================================
+    //                                  DOM Element References
+    // ====================================================================================
+    const form = document.getElementById('time-entry-form');
+    const tableBody = document.getElementById('record-table-body');
+    const summaryEmployees = document.getElementById('summary-employees');
+    const summaryHours = document.getElementById('summary-hours');
+    const summaryOvertime = document.getElementById('summary-overtime');
+    const summaryPay = document.getElementById('summary-pay');
+    const searchBox = document.getElementById('search-box');
+    const filterBy = document.getElementById('filter-by');
+    const sortBy = document.getElementById('sort-by');
+    const selectAll = document.getElementById('select-all');
+
+    // ====================================================================================
+    //                                  Global State
+    // ====================================================================================
+    let records = [];
+
+    // ====================================================================================
+    //                                  Data Persistence (localStorage)
+    // ====================================================================================
+    /**
+     * Saves the current records array to local storage.
+     */
+    const saveRecords = () => {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(records));
+        renderTable();
+        renderSummary();
+    };
+
+    /**
+     * Loads records from local storage and populates the global records array.
+     */
+    const loadRecords = () => {
+        const storedRecords = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (storedRecords) {
+            records = JSON.parse(storedRecords);
+        }
+    };
+
+    // ====================================================================================
+    //                                  Time & Payroll Calculations
+    // ====================================================================================
+    /**
+     * Calculates the duration in hours between two time strings.
+     * @param {string} start - The start time in "HH:mm" format.
+     * @param {string} end - The end time in "HH:mm" format.
+     * @returns {number} - The duration in hours.
+     */
+    const calculateDuration = (start, end) => {
+        if (!start || !end) return 0;
+        const [startHour, startMin] = start.split(':').map(Number);
+        const [endHour, endMin] = end.split(':').map(Number);
+        let duration = (endHour * 60 + endMin) - (startHour * 60 + startMin);
+        if (duration < 0) {
+            duration += 24 * 60; // Handle overnight shifts
+        }
+        return duration / 60;
+    };
+
+    /**
+     * Calculates all time and pay-related fields for a single record.
+     * @param {object} record - The record object to update.
+     */
+    const updateCalculations = (record) => {
+        const shiftStart = record.shiftStart ? new Date(`2000-01-01T${record.shiftStart}:00`) : null;
+        const shiftEnd = record.shiftEnd ? new Date(`2000-01-01T${record.shiftEnd}:00`) : null;
+        
+        // Calculate AM and PM session hours
+        const amHours = calculateDuration(record.timeInAm, record.timeOutAm);
+        const pmHours = calculateDuration(record.timeInPm, record.timeOutPm);
+        
+        // Total Hours Worked
+        record.totalHoursWorked = amHours + pmHours;
+        
+        const timeInFirstSession = record.timeInAm || record.timeInPm;
+        const timeOutLastSession = record.timeOutPm || record.timeOutAm;
+
+        // Late and Undertime (in minutes)
+        if (shiftStart && timeInFirstSession) {
+            const [shiftStartHour, shiftStartMin] = record.shiftStart.split(':').map(Number);
+            const [timeInHour, timeInMin] = timeInFirstSession.split(':').map(Number);
+            let lateMins = (timeInHour * 60 + timeInMin) - (shiftStartHour * 60 + shiftStartMin);
+            if (lateMins < 0) lateMins += 24 * 60; // Handle overnight
+            record.lateMinutes = Math.max(0, lateMins);
+        } else {
+            record.lateMinutes = 0;
+        }
+
+        if (shiftEnd && timeOutLastSession) {
+            const [shiftEndHour, shiftEndMin] = record.shiftEnd.split(':').map(Number);
+            const [timeOutHour, timeOutMin] = timeOutLastSession.split(':').map(Number);
+            let undertimeMins = (shiftEndHour * 60 + shiftEndMin) - (timeOutHour * 60 + timeOutMin);
+            if (undertimeMins < 0) undertimeMins += 24 * 60; // Handle overnight
+            record.undertimeMinutes = Math.max(0, undertimeMins);
+        } else {
+            record.undertimeMinutes = 0;
+        }
+
+        // Night Differential Hours (22:00 to 06:00)
+        let ndHours = 0;
+        const calculateND = (start, end) => {
+            if (!start || !end) return 0;
+            const startOfDay = new Date(record.date);
+            const sessionStart = new Date(startOfDay.getFullYear(), startOfDay.getMonth(), startOfDay.getDate(), ...start.split(':'));
+            const sessionEnd = new Date(startOfDay.getFullYear(), startOfDay.getMonth(), startOfDay.getDate(), ...end.split(':'));
+            
+            // Adjust for overnight shift
+            if (sessionEnd < sessionStart) sessionEnd.setDate(sessionEnd.getDate() + 1);
+            
+            const ndStart = new Date(sessionStart.getFullYear(), sessionStart.getMonth(), sessionStart.getDate(), 22, 0);
+            const ndEnd = new Date(sessionStart.getFullYear(), sessionStart.getMonth(), sessionStart.getDate() + 1, 6, 0);
+
+            // Clamp the session within the night differential period
+            const overlapStart = new Date(Math.max(sessionStart, ndStart));
+            const overlapEnd = new Date(Math.min(sessionEnd, ndEnd));
+
+            if (overlapEnd > overlapStart) {
+                return (overlapEnd.getTime() - overlapStart.getTime()) / (1000 * 60 * 60);
+            }
+            return 0;
+        };
+
+        ndHours += calculateND(record.timeInAm, record.timeOutAm);
+        ndHours += calculateND(record.timeInPm, record.timeOutPm);
+        record.nightDifferentialHours = parseFloat(ndHours.toFixed(2));
+        
+        // Overtime Hours
+        const scheduledHours = calculateDuration(record.shiftStart, record.shiftEnd);
+        record.overtimeHours = Math.max(0, record.totalHoursWorked - scheduledHours);
+
+        // Payroll
+        const regularHours = record.totalHoursWorked - record.overtimeHours;
+        const regularPay = regularHours * record.hourlyRate;
+        const otPay = record.overtimeHours * record.hourlyRate * OVERTIME_MULTIPLIER;
+        const ndPay = record.nightDifferentialHours * record.hourlyRate * (NIGHT_DIFF_MULTIPLIER - 1);
+        
+        record.regularPay = parseFloat(regularPay.toFixed(2));
+        record.overtimePay = parseFloat(otPay.toFixed(2));
+        record.totalPay = parseFloat((regularPay + otPay + ndPay).toFixed(2));
+    };
+
+    // ====================================================================================
+    //                                  UI Rendering & Event Handling
+    // ====================================================================================
+    
+    /**
+     * Renders all records to the table, applying filters and sorting.
+     */
+    const renderTable = () => {
+        tableBody.innerHTML = '';
+        const searchQuery = searchBox.value.toLowerCase();
+        const filterStatus = filterBy.value;
+
+        let filteredRecords = records.filter(record => 
+            (record.employeeName.toLowerCase().includes(searchQuery) || record.employeeId.toLowerCase().includes(searchQuery)) &&
+            (filterStatus === 'all' || record.attendanceStatus === filterStatus)
+        );
+        
+        const [sortField, sortOrder] = sortBy.value.split('-');
+        filteredRecords.sort((a, b) => {
+            let valA, valB;
+            switch(sortField) {
+                case 'date':
+                    valA = new Date(a.date);
+                    valB = new Date(b.date);
+                    break;
+                case 'name':
+                    valA = a.employeeName;
+                    valB = b.employeeName;
+                    break;
+                case 'project':
+                    valA = a.projectDepartment;
+                    valB = b.projectDepartment;
+                    break;
+                default:
+                    return 0;
+            }
+
+            if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+            if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        filteredRecords.forEach(record => {
+            const row = tableBody.insertRow();
+            let rowClass = '';
+            if (record.attendanceStatus === 'Absent') {
+                rowClass = 'status-alert';
+            } else if (record.lateMinutes > LATE_THRESHOLD_MINS) {
+                rowClass = 'status-alert';
+            } else if (record.undertimeMinutes > 0) {
+                rowClass = 'status-warning';
+            } else {
+                rowClass = 'status-ok';
+            }
+            row.className = rowClass;
+            row.dataset.id = record.id;
+            
+            // Generate table cells
+            row.innerHTML = `
+                <td class="select-row"><input type="checkbox" class="row-select"></td>
+                <td>${record.employeeName}</td>
+                <td>${record.employeeId}</td>
+                <td>${record.position}</td>
+                <td>${record.projectDepartment}</td>
+                <td>${record.date}</td>
+                <td>${new Date(record.date).toLocaleDateString('en-US', { weekday: 'long' })}</td>
+                <td>${record.shiftStart} - ${record.shiftEnd}</td>
+                <td>
+                    AM: ${record.timeInAm} - ${record.timeOutAm}<br>
+                    PM: ${record.timeInPm} - ${record.timeOutPm}
+                </td>
+                <td>${record.totalHoursWorked.toFixed(2)}</td>
+                <td>${record.lateMinutes}</td>
+                <td>${record.undertimeMinutes}</td>
+                <td>${record.overtimeHours.toFixed(2)}</td>
+                <td>${record.nightDifferentialHours.toFixed(2)}</td>
+                <td>${record.attendanceStatus}</td>
+                <td>${record.payStatus || 'Unpaid'}</td>
+                <td>₱${record.regularPay.toFixed(2)}</td>
+                <td>₱${record.overtimePay.toFixed(2)}</td>
+                <td>₱${record.totalPay.toFixed(2)}</td>
+                <td class="table-actions">
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">Delete</button>
+                </td>
+            `;
+        });
+    };
+
+    /**
+     * Renders the summary panel with totals for all displayed records.
+     */
+    const renderSummary = () => {
+        const selectedRows = Array.from(tableBody.querySelectorAll('tr'));
+        let totalHours = 0;
+        let totalOvertime = 0;
+        let totalPay = 0;
+        let employeeIds = new Set();
+        
+        selectedRows.forEach(row => {
+            const record = records.find(r => r.id === row.dataset.id);
+            if(record) {
+                totalHours += record.totalHoursWorked;
+                totalOvertime += record.overtimeHours;
+                totalPay += record.totalPay;
+                employeeIds.add(record.employeeId);
+            }
+        });
+        
+        summaryEmployees.textContent = employeeIds.size;
+        summaryHours.textContent = totalHours.toFixed(2);
+        summaryOvertime.textContent = totalOvertime.toFixed(2);
+        summaryPay.textContent = `₱${totalPay.toFixed(2)}`;
+    };
+
+    /**
+     * Populates the form with data from a selected record for editing.
+     * @param {object} record - The record object.
+     */
+    const populateForm = (record) => {
+        document.getElementById('entry-id').value = record.id;
+        document.getElementById('employee-name').value = record.employeeName;
+        document.getElementById('employee-id').value = record.employeeId;
+        document.getElementById('position').value = record.position;
+        document.getElementById('project-department').value = record.projectDepartment;
+        document.getElementById('date-input').value = record.date;
+        document.getElementById('shift-start').value = record.shiftStart;
+        document.getElementById('shift-end').value = record.shiftEnd;
+        document.getElementById('time-in-am').value = record.timeInAm;
+        document.getElementById('time-out-am').value = record.timeOutAm;
+        document.getElementById('time-in-pm').value = record.timeInPm;
+        document.getElementById('time-out-pm').value = record.timeOutPm;
+        document.getElementById('attendance-status').value = record.attendanceStatus;
+        document.getElementById('hourly-rate').value = record.hourlyRate;
+        document.getElementById('remarks').value = record.remarks;
+        document.getElementById('add-entry-btn').textContent = 'Update Entry';
+    };
+
+    /**
+     * Resets the form inputs to their default state.
+     */
+    const clearForm = () => {
+        form.reset();
+        document.getElementById('entry-id').value = '';
+        document.getElementById('hourly-rate').value = DEFAULT_HOURLY_RATE;
+        document.getElementById('add-entry-btn').textContent = 'Save Entry';
+    };
+
+    /**
+     * Handles the form submission for adding or updating a record.
+     * @param {Event} e - The form submission event.
+     */
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const recordId = document.getElementById('entry-id').value;
+        const newRecord = {
+            id: recordId || Date.now().toString(),
+            employeeName: document.getElementById('employee-name').value,
+            employeeId: document.getElementById('employee-id').value,
+            position: document.getElementById('position').value,
+            projectDepartment: document.getElementById('project-department').value,
+            date: document.getElementById('date-input').value,
+            shiftStart: document.getElementById('shift-start').value,
+            shiftEnd: document.getElementById('shift-end').value,
+            timeInAm: document.getElementById('time-in-am').value,
+            timeOutAm: document.getElementById('time-out-am').value,
+            timeInPm: document.getElementById('time-in-pm').value,
+            timeOutPm: document.getElementById('time-out-pm').value,
+            attendanceStatus: document.getElementById('attendance-status').value,
+            hourlyRate: parseFloat(document.getElementById('hourly-rate').value),
+            remarks: document.getElementById('remarks').value,
+            payStatus: 'Unpaid'
+        };
+
+        updateCalculations(newRecord);
+
+        if (recordId) {
+            const index = records.findIndex(r => r.id === recordId);
+            if (index !== -1) {
+                records[index] = newRecord;
+            }
+        } else {
+            records.push(newRecord);
+        }
+
+        saveRecords();
+        clearForm();
+    });
+
+    /**
+     * Binds event listeners for live updates on time fields.
+     */
+    const bindLiveUpdates = () => {
+        const timeInputs = form.querySelectorAll('input[type="time"]');
+        const hourlyRateInput = document.getElementById('hourly-rate');
+        
+        const updateOnInput = () => {
+            const tempRecord = {
+                shiftStart: document.getElementById('shift-start').value,
+                shiftEnd: document.getElementById('shift-end').value,
+                timeInAm: document.getElementById('time-in-am').value,
+                timeOutAm: document.getElementById('time-out-am').value,
+                timeInPm: document.getElementById('time-in-pm').value,
+                timeOutPm: document.getElementById('time-out-pm').value,
+                hourlyRate: parseFloat(document.getElementById('hourly-rate').value),
+                date: document.getElementById('date-input').value // Needed for ND calculation
+            };
+            if(tempRecord.date) {
+                updateCalculations(tempRecord);
+                // Optionally display live calcs somewhere on the form if needed, e.g., via tooltips
+            }
+        };
+
+        timeInputs.forEach(input => input.addEventListener('change', updateOnInput));
+        hourlyRateInput.addEventListener('change', updateOnInput);
+    };
+
+    /**
+     * Binds event listeners for table interactions.
+     */
+    tableBody.addEventListener('click', (e) => {
+        const target = e.target;
+        const row = target.closest('tr');
+        if (!row) return;
+
+        const recordId = row.dataset.id;
+        const record = records.find(r => r.id === recordId);
+
+        if (target.classList.contains('edit-btn')) {
+            populateForm(record);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (target.classList.contains('delete-btn')) {
+            if (confirm(`Are you sure you want to delete the entry for ${record.employeeName} on ${record.date}?`)) {
+                records = records.filter(r => r.id !== recordId);
+                saveRecords();
+            }
+        }
+    });
+
+    /**
+     * Filter, sort, and search event listeners.
+     */
+    searchBox.addEventListener('input', renderTable);
+    filterBy.addEventListener('change', renderTable);
+    sortBy.addEventListener('change', renderTable);
+
+    /**
+     * Bulk actions event listeners.
+     */
+    selectAll.addEventListener('change', (e) => {
+        tableBody.querySelectorAll('.row-select').forEach(checkbox => {
+            checkbox.checked = e.target.checked;
+        });
+    });
+
+    const getSelectedRecordIds = () => {
+        const selectedIds = [];
+        tableBody.querySelectorAll('.row-select:checked').forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            selectedIds.push(row.dataset.id);
+        });
+        return selectedIds;
+    };
+
+    document.getElementById('mark-paid-btn').addEventListener('click', () => {
+        getSelectedRecordIds().forEach(id => {
+            const record = records.find(r => r.id === id);
+            if (record) record.payStatus = 'Paid';
+        });
+        saveRecords();
+    });
+
+    document.getElementById('mark-unpaid-btn').addEventListener('click', () => {
+        getSelectedRecordIds().forEach(id => {
+            const record = records.find(r => r.id === id);
+            if (record) record.payStatus = 'Unpaid';
+        });
+        saveRecords();
+    });
+
+    document.getElementById('delete-selected-btn').addEventListener('click', () => {
+        const selectedIds = getSelectedRecordIds();
+        if (selectedIds.length === 0 || !confirm(`Are you sure you want to delete ${selectedIds.length} selected records?`)) return;
+        records = records.filter(r => !selectedIds.includes(r.id));
+        saveRecords();
+    });
+
+    /**
+     * Export and Print event listeners.
+     */
+    document.getElementById('export-csv-btn').addEventListener('click', () => {
+        const headers = ["Employee Name", "ID", "Position", "Project", "Date", "Day", "Shift Start", "Shift End", "Time In AM", "Time Out AM", "Time In PM", "Time Out PM", "Hours Worked", "Late (mins)", "Undertime (mins)", "Overtime (hrs)", "Night Diff (hrs)", "Status", "Pay Status", "Hourly Rate", "Regular Pay", "OT Pay", "Total Pay", "Remarks"];
+        
+        const selectedRecords = getSelectedRecordIds().map(id => records.find(r => r.id === id));
+        const recordsToExport = selectedRecords.length > 0 ? selectedRecords : records;
+
+        const csvContent = "data:text/csv;charset=utf-8," +
+            headers.join(',') + "\n" +
+            recordsToExport.map(r => {
+                return [
+                    r.employeeName, r.employeeId, r.position, r.projectDepartment, r.date,
+                    new Date(r.date).toLocaleDateString('en-US', { weekday: 'long' }),
+                    r.shiftStart, r.shiftEnd, r.timeInAm, r.timeOutAm, r.timeInPm, r.timeOutPm,
+                    r.totalHoursWorked.toFixed(2), r.lateMinutes, r.undertimeMinutes,
+                    r.overtimeHours.toFixed(2), r.nightDifferentialHours.toFixed(2),
+                    r.attendanceStatus, r.payStatus, r.hourlyRate, r.regularPay.toFixed(2),
+                    r.overtimePay.toFixed(2), r.totalPay.toFixed(2), r.remarks
+                ].map(item => `"${String(item).replace(/"/g, '""')}"`).join(',');
+            }).join('\n');
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "timekeeping_records.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+
+    document.getElementById('print-pdf-btn').addEventListener('click', () => {
+        window.print();
+    });
+    
+    document.getElementById('clear-form-btn').addEventListener('click', clearForm);
+
+    // ====================================================================================
+    //                                  Initialization
+    // ====================================================================================
+    /**
+     * Initializes the application on page load.
+     */
+    const init = () => {
+        loadRecords();
+        renderTable();
+        renderSummary();
+        bindLiveUpdates();
+        
+        // Set default hourly rate
+        document.getElementById('hourly-rate').value = DEFAULT_HOURLY_RATE;
+        
+        // Set today's date as default for date input
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date-input').value = today;
+    };
+
+    init();
+
+</script>
+
+</body>
+</html>
